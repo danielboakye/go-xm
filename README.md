@@ -12,5 +12,4 @@ Postman collection: [https://documenter.getpostman.com/view/14566466/2s935snMUV]
 
 ## Tests
 
-- `$ task setup` - Install all external dependencies
 - `$ go test httpserver.go httpserver_test.go -v` - run tests
