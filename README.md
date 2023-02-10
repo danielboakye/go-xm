@@ -5,6 +5,12 @@ Postman collection: [https://documenter.getpostman.com/view/14566466/2s935snMUV]
 ## Usage
 
 1. clone repository
-2. set `.env` values
+2. change `.env` values - optional
 3. `$ docker-compose up -d` - Run docker-compose
-4. Test endpoints using postman collection above
+4. Generate test token with JWT endpoint
+5. Test other endpoints using postman collection above
+
+## Tests
+
+- `$ task setup` - Install all external dependencies
+- `$ gotest -cover -coverprofile=tmp/cover.out ./...` - run tests

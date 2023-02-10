@@ -37,8 +37,12 @@ func main() {
 	defer db.Close()
 
 	Repo := repo.NewRepository(db)
-	Handler := handlers.NewHandler(Repo, validator, config, nil)
+	Handler := handlers.NewHandler(Repo, validator, config)
 
-	serverHTTP := NewServerHTTP(Handler, config)
-	serverHTTP.Start()
+	ihttpHandler := NewHTTPHandler(Handler, config)
+	serverHTTP := NewHTTPServer(ihttpHandler, config)
+	err = serverHTTP.Start()
+	if err != nil {
+		log.Fatal(err)
+	}
 }

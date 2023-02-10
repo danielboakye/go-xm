@@ -12,18 +12,16 @@ import (
 	"github.com/danielboakye/go-xm/pkg/kfkp"
 	"github.com/danielboakye/go-xm/repo"
 	"github.com/gin-gonic/gin"
-	kafka "github.com/segmentio/kafka-go"
 )
 
 type Handler struct {
 	r   repo.IRepository
 	v   *helpers.Validation
 	cfg config.Configurations
-	kw  *kafka.Writer
 }
 
-func NewHandler(r repo.IRepository, v *helpers.Validation, c config.Configurations, kw *kafka.Writer) *Handler {
-	return &Handler{r: r, v: v, cfg: c, kw: kw}
+func NewHandler(r repo.IRepository, v *helpers.Validation, c config.Configurations) *Handler {
+	return &Handler{r: r, v: v, cfg: c}
 }
 
 func (h *Handler) companyExists(ctx context.Context, companyName string) (exists bool, err error) {

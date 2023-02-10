@@ -3,7 +3,7 @@ version: '3'
 tasks:
   setup:
     desc: Installs all external dependencies
-    deps: [install:air]
+    deps: [install:gotest, install:air]
 
   default:
     - task: run
@@ -21,4 +21,5 @@ tasks:
     cmds:
       - air
 
+  install:gotest: go install github.com/rakyll/gotest@latest
   install:air: go install github.com/cosmtrek/air@latest
