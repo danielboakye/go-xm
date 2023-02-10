@@ -1,0 +1,61 @@
+version: '3'
+services:
+  app:
+    container_name: full_app
+    build: .
+    ports:
+      - 8080:8080
+    restart: on-failure
+    volumes:
+      - api:/usr/src/app/
+    depends_on:
+      - db
+  db:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_DB_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_DB_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./migrations/sql:/database
+    command:
+      [
+        "-path",
+        "/database",
+        "-database",
+        "postgres://${POSTGRES_DB_USER}:${POSTGRES_DB_PASSWORD}@db:5432/${POSTGRES_DB_NAME}?sslmode=disable",
+        "up"
+      ]
+    links:
+      - db
+    depends_on:
+      - db
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+volumes:
+  api:
+  postgres-db:
