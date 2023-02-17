@@ -3,7 +3,7 @@ BEGIN;
 CREATE TABLE companies (
 	company_id UUID DEFAULT gen_random_uuid ()
 	,
-	company_name VARCHAR NOT NULL UNIQUE
+	company_name VARCHAR NOT NULL
 	,
 	description VARCHAR NULL
 	,
