@@ -1,5 +1,6 @@
 BEGIN;
 
-ALTER TABLE companies ALTER COLUMN company_name VARCHAR NOT NULL;
+ALTER TABLE companies
+DROP CONSTRAINT companies_company_name_key;
 
 COMMIT;
