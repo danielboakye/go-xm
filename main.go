@@ -36,6 +36,14 @@ func main() {
 	// 	Handler: serverHTTP,
 	// }
 
+	// Initializing the server in a goroutine so that
+	// it won't block the graceful shutdown handling below
+	// go func() {
+	// 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	// 		log.Fatalf("listen: %s\n", err)
+	// 	}
+	// }()
+
 	// // Listen for the interrupt signal.
 	// <-ctx.Done()
 
