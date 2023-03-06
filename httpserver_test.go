@@ -259,7 +259,7 @@ func TestCompany(t *testing.T) {
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("PATCH", "http:/api/v1/company/ae17b2e2-6b87-4c5b-9c94-3623dacf113b", strings.NewReader(`
 				{
-					"amountOfEmployees": 2
+					"amountOfEmployees": -1
 				}
 			`))
 			r.Header.Set("Content-Type", "application/json")
@@ -278,6 +278,24 @@ func TestCompany(t *testing.T) {
 		})
 		t.Run("success", func(t *testing.T) {
 			assert, require, mockDB, testHTTPHandler := newTestHTTPHandler(t)
+
+			mockDB.ExpectQuery(`
+				SELECT
+					company_id, company_name, description, amount_of_employees, is_registered, company_type
+				FROM companies
+				WHERE company_id = $1
+					AND deleted_at IS NULL
+			`).
+				WillReturnRows(
+					sqlmock.NewRows(
+						[]string{
+							"company_id", "company_name",
+							"description", "amount_of_employees",
+							"is_registered", "company_type",
+						},
+					).
+						FromCSVString("ae17b2e2-6b87-4c5b-9c94-3623dacf113b,example,company description,3,false,Non Profit"),
+				)
 
 			mockDB.ExpectExec(`
 				UPDATE companies 

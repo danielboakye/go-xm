@@ -137,6 +137,7 @@ func (h *Handler) UpdateCompany(c *gin.Context) {
 		return
 	}
 
+	log.Println("here1")
 	if request.Name != nil {
 		if *request.Name != data.Name {
 			exists, err := h.companyExists(c.Request.Context(), *request.Name)
@@ -160,6 +161,7 @@ func (h *Handler) UpdateCompany(c *gin.Context) {
 		}
 	}
 
+	log.Println("here2")
 	err = h.r.UpdateCompany(
 		c.Request.Context(),
 		companyIDParam,
@@ -170,6 +172,7 @@ func (h *Handler) UpdateCompany(c *gin.Context) {
 		request.CompanyType,
 	)
 
+	log.Println("here3")
 	if err != nil {
 		log.Println(err)
 		err = helpers.ErrProcessingFailed
