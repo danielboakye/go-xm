@@ -5,12 +5,10 @@ import (
 	"database/sql"
 
 	"github.com/danielboakye/go-xm/models"
-	"github.com/danielboakye/go-xm/pkg/kfkp"
 )
 
 type Repository struct {
-	db   *sql.DB
-	kfkp kfkp.IKafkaConn
+	db *sql.DB
 }
 
 type IRepository interface {
@@ -19,12 +17,10 @@ type IRepository interface {
 	DeleteCompany(context.Context, string) error
 	GetCompanyByID(context.Context, string) (company models.Company, err error)
 	GetCompanyByName(context.Context, string) (company models.Company, err error)
-
-	SendMessage(string) error
 }
 
-func NewRepository(db *sql.DB, kfkp kfkp.IKafkaConn) IRepository {
-	return &Repository{db: db, kfkp: kfkp}
+func NewRepository(db *sql.DB) IRepository {
+	return &Repository{db: db}
 }
 func (r *Repository) CreateCompany(
 	ctx context.Context,
@@ -135,10 +131,4 @@ func (r *Repository) GetCompanyByName(
 		&company.CompanyType,
 	)
 	return
-}
-
-func (r *Repository) SendMessage(message string) (err error) {
-	err = r.kfkp.SendMessage(message)
-	return
-
 }

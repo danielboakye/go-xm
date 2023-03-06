@@ -11,7 +11,6 @@ import (
 	"github.com/danielboakye/go-xm/config"
 	"github.com/danielboakye/go-xm/handlers"
 	"github.com/danielboakye/go-xm/helpers"
-	"github.com/danielboakye/go-xm/pkg/kfkp"
 	"github.com/danielboakye/go-xm/pkg/postgres"
 	"github.com/danielboakye/go-xm/repo"
 )
@@ -31,11 +30,7 @@ func buildCompileTime(ctx context.Context) (HTTPServer, error) {
 	if err != nil {
 		return HTTPServer{}, err
 	}
-	iKafkaConn, err := kfkp.NewConnection(ctx, configurations)
-	if err != nil {
-		return HTTPServer{}, err
-	}
-	iRepository := repo.NewRepository(db, iKafkaConn)
+	iRepository := repo.NewRepository(db)
 	validation, err := helpers.NewValidation()
 	if err != nil {
 		return HTTPServer{}, err

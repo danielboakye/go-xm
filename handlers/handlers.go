@@ -95,12 +95,6 @@ func (h *Handler) CreateCompany(c *gin.Context) {
 
 	request.ID = companyID
 
-	err = h.r.SendMessage("company created")
-
-	if err != nil {
-		log.Println(err)
-	}
-
 	c.JSON(http.StatusOK, request)
 }
 
@@ -186,11 +180,6 @@ func (h *Handler) UpdateCompany(c *gin.Context) {
 		return
 	}
 
-	err = h.r.SendMessage("company updated")
-	if err != nil {
-		log.Println(err)
-	}
-
 	c.Status(http.StatusOK)
 }
 
@@ -210,12 +199,6 @@ func (h *Handler) DeleteCompany(c *gin.Context) {
 			gin.H{"error": err.Error()},
 		)
 		return
-	}
-
-	err = h.r.SendMessage("company deleted")
-
-	if err != nil {
-		log.Println(err)
 	}
 
 	c.Status(http.StatusOK)
