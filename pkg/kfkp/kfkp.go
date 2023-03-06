@@ -13,24 +13,28 @@ const (
 	partition = 0
 )
 
-func SendMessage(ctx context.Context, cfg config.Configurations, message string) (err error) {
+type KafkaConn struct {
+	conn *kafka.Conn
+}
 
-	var conn *kafka.Conn
-	conn, err = kafka.DialLeader(ctx, "tcp", cfg.KafkaURL, topic, partition)
+type IKafkaConn interface {
+	SendMessage(string) error
+}
+
+func NewConnection(ctx context.Context, cfg config.Configurations) (c IKafkaConn, err error) {
+	conn, err := kafka.DialLeader(ctx, "tcp", cfg.KafkaURL, topic, partition)
 	if err != nil {
 		return
 	}
+	c = &KafkaConn{conn: conn}
+	return
+}
 
-	_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
-	_, err = conn.WriteMessages(
+func (k *KafkaConn) SendMessage(message string) (err error) {
+	_ = k.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	_, err = k.conn.WriteMessages(
 		kafka.Message{Value: []byte(message)},
 	)
-
-	if err != nil {
-		return
-	}
-
-	err = conn.Close()
 
 	return
 }

@@ -5,22 +5,26 @@ import (
 	"database/sql"
 
 	"github.com/danielboakye/go-xm/models"
+	"github.com/danielboakye/go-xm/pkg/kfkp"
 )
 
 type Repository struct {
-	db *sql.DB
+	db   *sql.DB
+	kfkp kfkp.IKafkaConn
 }
 
 type IRepository interface {
 	CreateCompany(context.Context, string, string, int64, bool, string) (string, error)
-	UpdateCompany(context.Context, string, string, string, int64, bool, string) error
+	UpdateCompany(context.Context, string, *string, *string, *int64, *bool, *string) error
 	DeleteCompany(context.Context, string) error
 	GetCompanyByID(context.Context, string) (company models.Company, err error)
 	GetCompanyByName(context.Context, string) (company models.Company, err error)
+
+	SendMessage(string) error
 }
 
-func NewRepository(db *sql.DB) IRepository {
-	return &Repository{db: db}
+func NewRepository(db *sql.DB, kfkp kfkp.IKafkaConn) IRepository {
+	return &Repository{db: db, kfkp: kfkp}
 }
 func (r *Repository) CreateCompany(
 	ctx context.Context,
@@ -44,21 +48,21 @@ func (r *Repository) CreateCompany(
 func (r *Repository) UpdateCompany(
 	ctx context.Context,
 	companyID string,
-	name string,
-	description string,
-	amountOfEmployees int64,
-	registered bool,
-	companyType string,
+	name *string,
+	description *string,
+	amountOfEmployees *int64,
+	registered *bool,
+	companyType *string,
 ) (err error) {
 
 	_, err = r.db.ExecContext(ctx, `
 			UPDATE companies 
 			SET 
-				company_name = $2, 
-				description = $3, 
-				amount_of_employees = $4, 
-				is_registered = $5, 
-				company_type = $6,
+				company_name = coalesce($2, company_name), 
+				description = coalesce($3, description), 
+				amount_of_employees = coalesce($4, amount_of_employees), 
+				is_registered = coalesce($5, is_registered), 
+				company_type = coalesce($6, company_type),
 				modified_at = now()
 			WHERE
 				company_id = $1
@@ -131,4 +135,10 @@ func (r *Repository) GetCompanyByName(
 		&company.CompanyType,
 	)
 	return
+}
+
+func (r *Repository) SendMessage(message string) (err error) {
+	err = r.kfkp.SendMessage(message)
+	return
+
 }

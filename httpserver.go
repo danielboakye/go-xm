@@ -24,7 +24,7 @@ type IHTTPHandler interface {
 	Run(addr ...string) error
 }
 
-func NewHTTPHandler(handler *handlers.Handler, cfg config.Configurations) IHTTPHandler {
+func newHTTPHandler(handler *handlers.Handler, cfg config.Configurations) IHTTPHandler {
 	//  Creates a handler without any middleware by default
 	engine := gin.New()
 
@@ -37,7 +37,7 @@ func NewHTTPHandler(handler *handlers.Handler, cfg config.Configurations) IHTTPH
 	engine.Use(gin.Recovery())
 
 	engine.Use(cors.New(cors.Config{
-		// AllowOrigins:     []string{""http://localhost:8080""},
+		// AllowOrigins:     []string{"http://localhost:8080"},
 		AllowAllOrigins:  true,
 		AllowMethods:     []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Content-Type", "Accept", "Authorization"},
@@ -70,15 +70,14 @@ func NewHTTPHandler(handler *handlers.Handler, cfg config.Configurations) IHTTPH
 
 	engine.NoRoute(func(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"status":  http.StatusNotFound,
-			"message": "Resource not found",
+			"error": "Resource not found",
 		})
 	})
 
 	return engine
 }
 
-func NewHTTPServer(handler IHTTPHandler, cfg config.Configurations) HTTPServer {
+func newHTTPServer(handler IHTTPHandler, cfg config.Configurations) HTTPServer {
 	return HTTPServer{handler: handler, cfg: cfg}
 }
 
@@ -86,3 +85,5 @@ func (s HTTPServer) Start() error {
 	err := s.handler.Run(":" + s.cfg.HTTPPort)
 	return err
 }
+
+// Stop Server

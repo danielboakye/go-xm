@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/danielboakye/go-xm/helpers/consts"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -25,19 +24,7 @@ func NewValidation() (*Validation, error) {
 		return name
 	})
 
-	err := validate.RegisterValidation("company-types", validateCompanyType)
-	if err != nil {
-		return nil, err
-	}
-
 	return &Validation{validate}, nil
-}
-
-func validateCompanyType(fl validator.FieldLevel) bool {
-	docType := fl.Field().String()
-
-	contains := SliceContains(consts.CompanyTypes, docType)
-	return contains
 }
 
 // ValidateForm function return all validation errors in the associated form fields and struct

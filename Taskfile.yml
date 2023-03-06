@@ -19,7 +19,8 @@ tasks:
     env:
       ENV: local
     cmds:
-      - air
+      - wire
+      - sleep 1 || timeout /t 1; air
 
   install:gotest: go install github.com/rakyll/gotest@latest
   install:air: go install github.com/cosmtrek/air@latest

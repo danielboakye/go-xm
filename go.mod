@@ -9,6 +9,7 @@ require (
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/golang-migrate/migrate v3.5.4+incompatible
+	github.com/google/wire v0.5.0
 	github.com/jackc/pgx/v4 v4.17.2
 	github.com/joho/godotenv v1.5.1
 	github.com/segmentio/kafka-go v0.4.35

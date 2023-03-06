@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -13,6 +14,7 @@ import (
 	"github.com/danielboakye/go-xm/config"
 	"github.com/danielboakye/go-xm/handlers"
 	"github.com/danielboakye/go-xm/helpers"
+	"github.com/danielboakye/go-xm/pkg/kfkp"
 	"github.com/danielboakye/go-xm/repo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -40,12 +42,16 @@ func newTestHTTPHandler(t *testing.T) (*assert.Assertions, *require.Assertions, 
 	validator, err := helpers.NewValidation()
 	require.NoError(err)
 
+	ctx := context.Background()
+	testKC, err := kfkp.NewConnection(ctx, cfg)
+	require.NoError(err)
+
 	var (
-		testRepo    = repo.NewRepository(db)
+		testRepo    = repo.NewRepository(db, testKC)
 		testHandler = handlers.NewHandler(testRepo, validator, cfg)
 	)
 
-	testHTTPHandler := NewHTTPHandler(testHandler, cfg)
+	testHTTPHandler := newHTTPHandler(testHandler, cfg)
 
 	return assert, require, mockDB, testHTTPHandler
 }

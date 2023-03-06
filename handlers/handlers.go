@@ -9,7 +9,6 @@ import (
 	"github.com/danielboakye/go-xm/config"
 	"github.com/danielboakye/go-xm/helpers"
 	"github.com/danielboakye/go-xm/models"
-	"github.com/danielboakye/go-xm/pkg/kfkp"
 	"github.com/danielboakye/go-xm/repo"
 	"github.com/gin-gonic/gin"
 )
@@ -56,15 +55,6 @@ func (h *Handler) CreateCompany(c *gin.Context) {
 		return
 	}
 
-	if request.AmountOfEmployees == nil {
-		err := helpers.ErrInvalidParameters
-		c.AbortWithStatusJSON(
-			helpers.GetHttpStatusByErr(err),
-			gin.H{"error": err.Error()},
-		)
-		return
-	}
-
 	exists, err := h.companyExists(c.Request.Context(), request.Name)
 	if err != nil {
 		log.Println(err)
@@ -89,7 +79,7 @@ func (h *Handler) CreateCompany(c *gin.Context) {
 		c.Request.Context(),
 		request.Name,
 		request.Description,
-		*request.AmountOfEmployees,
+		request.AmountOfEmployees,
 		request.Registered,
 		request.CompanyType,
 	)
@@ -105,7 +95,7 @@ func (h *Handler) CreateCompany(c *gin.Context) {
 
 	request.ID = companyID
 
-	err = kfkp.SendMessage(c.Request.Context(), h.cfg, "company created")
+	err = h.r.SendMessage("company created")
 
 	if err != nil {
 		log.Println(err)
@@ -116,7 +106,7 @@ func (h *Handler) CreateCompany(c *gin.Context) {
 
 func (h *Handler) UpdateCompany(c *gin.Context) {
 
-	var request models.Company
+	var request models.CompanyUpdateReq
 	if err := c.ShouldBind(&request); err != nil {
 		err = helpers.ErrInvalidParameters
 		c.AbortWithStatusJSON(
@@ -135,25 +125,11 @@ func (h *Handler) UpdateCompany(c *gin.Context) {
 		return
 	}
 
-	if request.AmountOfEmployees == nil {
-		err := helpers.ErrInvalidParameters
-		c.AbortWithStatusJSON(
-			helpers.GetHttpStatusByErr(err),
-			gin.H{"error": err.Error()},
-		)
-		return
-	}
-
 	companyIDParam := c.Param("company-id")
 
-	err := h.r.UpdateCompany(
+	data, err := h.r.GetCompanyByID(
 		c.Request.Context(),
 		companyIDParam,
-		request.Name,
-		request.Description,
-		*request.AmountOfEmployees,
-		request.Registered,
-		request.CompanyType,
 	)
 
 	if err != nil {
@@ -165,7 +141,48 @@ func (h *Handler) UpdateCompany(c *gin.Context) {
 		return
 	}
 
-	err = kfkp.SendMessage(c.Request.Context(), h.cfg, "company updated")
+	if *request.Name != data.Name {
+		exists, err := h.companyExists(c.Request.Context(), *request.Name)
+		if err != nil {
+			err = helpers.ErrProcessingFailed
+			c.AbortWithStatusJSON(
+				helpers.GetHttpStatusByErr(err),
+				gin.H{"error": err.Error()},
+			)
+			return
+		}
+
+		if exists {
+			err = helpers.ErrDuplicateRecord
+			c.AbortWithStatusJSON(
+				helpers.GetHttpStatusByErr(err),
+				gin.H{"error": err.Error()},
+			)
+			return
+		}
+	}
+
+	err = h.r.UpdateCompany(
+		c.Request.Context(),
+		companyIDParam,
+		request.Name,
+		request.Description,
+		request.AmountOfEmployees,
+		request.Registered,
+		request.CompanyType,
+	)
+
+	if err != nil {
+		log.Println(err)
+		err = helpers.ErrProcessingFailed
+		c.AbortWithStatusJSON(
+			helpers.GetHttpStatusByErr(err),
+			gin.H{"error": err.Error()},
+		)
+		return
+	}
+
+	err = h.r.SendMessage("company updated")
 
 	if err != nil {
 		log.Println(err)
@@ -192,7 +209,7 @@ func (h *Handler) DeleteCompany(c *gin.Context) {
 		return
 	}
 
-	err = kfkp.SendMessage(c.Request.Context(), h.cfg, "company deleted")
+	err = h.r.SendMessage("company deleted")
 
 	if err != nil {
 		log.Println(err)
