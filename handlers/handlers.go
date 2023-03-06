@@ -117,6 +117,7 @@ func (h *Handler) UpdateCompany(c *gin.Context) {
 	}
 
 	if err := h.v.ValidateForm(request); err != nil {
+		log.Println(err)
 		err = helpers.ErrInvalidParameters
 		c.AbortWithStatusJSON(
 			helpers.GetHttpStatusByErr(err),
@@ -133,6 +134,7 @@ func (h *Handler) UpdateCompany(c *gin.Context) {
 	)
 
 	if err != nil {
+		log.Println(err)
 		err = helpers.ErrProcessingFailed
 		c.AbortWithStatusJSON(
 			helpers.GetHttpStatusByErr(err),
@@ -141,26 +143,30 @@ func (h *Handler) UpdateCompany(c *gin.Context) {
 		return
 	}
 
-	if *request.Name != data.Name {
-		exists, err := h.companyExists(c.Request.Context(), *request.Name)
-		if err != nil {
-			err = helpers.ErrProcessingFailed
-			c.AbortWithStatusJSON(
-				helpers.GetHttpStatusByErr(err),
-				gin.H{"error": err.Error()},
-			)
-			return
-		}
+	if request.Name != nil {
+		if *request.Name != data.Name {
+			exists, err := h.companyExists(c.Request.Context(), *request.Name)
+			if err != nil {
+				err = helpers.ErrProcessingFailed
+				c.AbortWithStatusJSON(
+					helpers.GetHttpStatusByErr(err),
+					gin.H{"error": err.Error()},
+				)
+				return
+			}
 
-		if exists {
-			err = helpers.ErrDuplicateRecord
-			c.AbortWithStatusJSON(
-				helpers.GetHttpStatusByErr(err),
-				gin.H{"error": err.Error()},
-			)
-			return
+			if exists {
+				err = helpers.ErrDuplicateRecord
+				c.AbortWithStatusJSON(
+					helpers.GetHttpStatusByErr(err),
+					gin.H{"error": err.Error()},
+				)
+				return
+			}
 		}
 	}
+
+	log.Println("here")
 
 	err = h.r.UpdateCompany(
 		c.Request.Context(),

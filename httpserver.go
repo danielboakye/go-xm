@@ -85,5 +85,3 @@ func (s HTTPServer) Start() error {
 	err := s.handler.Run(":" + s.cfg.HTTPPort)
 	return err
 }
-
-// Stop Server

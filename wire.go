@@ -15,7 +15,7 @@ import (
 	"github.com/google/wire"
 )
 
-func BuildCompileTime(ctx context.Context) (httpServer HTTPServer, err error) {
+func buildCompileTime(ctx context.Context) (httpServer HTTPServer, err error) {
 	wire.Build(
 		config.NewConfigurations,
 		helpers.NewValidation,

@@ -22,7 +22,7 @@ import (
 
 // Injectors from wire.go:
 
-func BuildCompileTime(ctx context.Context) (HTTPServer, error) {
+func buildCompileTime(ctx context.Context) (HTTPServer, error) {
 	configurations, err := config.NewConfigurations()
 	if err != nil {
 		return HTTPServer{}, err
