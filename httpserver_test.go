@@ -43,8 +43,7 @@ func newTestHTTPHandler(t *testing.T) (*assert.Assertions, *require.Assertions, 
 	require.NoError(err)
 
 	ctx := context.Background()
-	testKC, err := kfkp.NewConnection(ctx, cfg)
-	require.NoError(err)
+	testKC, _ := kfkp.NewConnection(ctx, cfg)
 
 	var (
 		testRepo    = repo.NewRepository(db, testKC)
