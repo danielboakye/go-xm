@@ -166,8 +166,6 @@ func (h *Handler) UpdateCompany(c *gin.Context) {
 		}
 	}
 
-	log.Println("here")
-
 	err = h.r.UpdateCompany(
 		c.Request.Context(),
 		companyIDParam,
@@ -189,7 +187,6 @@ func (h *Handler) UpdateCompany(c *gin.Context) {
 	}
 
 	err = h.r.SendMessage("company updated")
-
 	if err != nil {
 		log.Println(err)
 	}

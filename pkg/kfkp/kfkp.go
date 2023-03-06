@@ -35,6 +35,5 @@ func (k *KafkaConn) SendMessage(message string) (err error) {
 	_, err = k.conn.WriteMessages(
 		kafka.Message{Value: []byte(message)},
 	)
-
 	return
 }
